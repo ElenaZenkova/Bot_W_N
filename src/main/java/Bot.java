@@ -1,6 +1,7 @@
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -31,33 +32,13 @@ public class Bot  extends TelegramLongPollingBot {
         return TOKEN;
     }
 
-    @Override
-    public void onUpdateReceived(Update update) {
 
-    String message = update.getMessage().getText();
-    sendMsg(update.getMessage().getChatId().toString(), message);
-
-        if (message.equals("/start")) {
-            sendMsg(message, "Привет, начнём! Я бот и могу рассказать тебе новости или погоду!");
-        }
-
-        if (message.equals("/help")){
-            sendMsg(message,"Узнать что я могу");
-        }
-        if (message.equals("/news")){
-            sendMsg(message,"Рассказать последние новости");
-        }
-        if (message.equals("/weather")){
-            sendMsg(message,"Рассказать погоду");
-        }
-
-    }
-
-    public void sendMsg(String chatId, String s) {
+    public void sendMsg(Message message, String text) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(s);
+        sendMessage.setChatId(message.getChatId().toString());
+        sendMessage.setReplyToMessageId(message.getMessageId());
+        sendMessage.setText(text);
         try {
 
             sendMessage(sendMessage);
@@ -66,6 +47,24 @@ public class Bot  extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+    @Override
+    public void onUpdateReceived(Update update) {
+        Message message = update.getMessage();
+
+        if (message !=null && message.hasText()) {
+            String text = message.getText();
+            if ("/start".equals(text)) {
+                sendMsg(message, "Привет, начнём! Я бот и могу рассказать тебе новости /news или погоду /weather!");
+            } else if ("/help".equals(text)) {
+                sendMsg(message, "Узнать что я могу: /news - расскажу новости, /weather - расскажу о погоде");
+            } else if ("/news".equals(text)) {
+                sendMsg(message, "Прочитать последние новости можно тут: https://ria.ru/");
+            } else if ("/weather".equals(text)) {
+                sendMsg(message, "Чтобы посмотреть погоду, зайди сюда: https://www.gismeteo.ru/");
+            }
+        }
+    }
+
 
 }
 
