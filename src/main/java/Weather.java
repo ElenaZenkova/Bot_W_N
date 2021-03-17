@@ -1,30 +1,46 @@
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.Update;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Scanner;
+
+import Config.Config;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Weather {
 
-    private static final String APIKEYWEATHER = "&appid=4d60cb579bb9d3088a8aa14cd0c51a31";
-    private static final String APIWEATHER = "api.openweathermap.org/data/2.5/weather?q=";
+    public static String getWeather (String cityName, Items items) throws IOException {
+        URL url = new URL(Config.APIWEATHER + cityName + Config.APIKEYWEATHER);
+        Scanner scan = new Scanner((InputStream)url.getContent());
 
+        String result = "";
+        while (scan.hasNext()){
+            result += scan.nextLine();
+        }
 
-    String cityName;
-    String urlString = APIWEATHER + cityName + APIKEYWEATHER;
+        JSONObject object = new JSONObject(result);
+        items.setName(object.getString("name"));
 
-    URL urlObject = new URL(urlString);
+        JSONObject main = object.getJSONObject("main");
+        items.setTemp_max(main.getDouble("temp_max"));
+        items.setTemp_min(main.getDouble("temp_min"));
 
-    //
-    HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
-    public Weather() throws IOException {
+        JSONObject wind = object.getJSONObject("wind");
+        items.setSpeed(wind.getDouble("speed"));
+
+        JSONArray getArray = object.getJSONArray("weather");
+        for (int i=0; i<getArray.length() ;i++) {
+            JSONObject obj = getArray.getJSONObject(i);
+            items.setMain(obj.getString("main"));
+            items.setIcon(obj.getString("icon"));
+        }
+
+        return "Город: " + items.getName() + "\n" +
+                "Температура днем: " + items.getTemp_max() + "C" + "\n" +
+                "Температура ночью: " + items.getTemp_min() + "C" + "\n" +
+                "Скорость ветра: " + items.getSpeed() + "м/с" + "\n" +
+                items.getMain() +
+                "http://openweathermap.org/img/w/" + items.getIcon() + ".png";
     }
-
-
 
 }
