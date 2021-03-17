@@ -4,20 +4,9 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-
-import javax.sound.sampled.Line;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.sql.SQLOutput;
-import java.util.Scanner;
 
-public class Bot  extends TelegramLongPollingBot {
+public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
@@ -62,8 +51,6 @@ public class Bot  extends TelegramLongPollingBot {
 
                     break;
                 default:
-                   // sendMsg(message, "Такой команды нет. Выберете доступную: /news или /weather");
-
                     try {
                         sendMsg(message, Weather.getWeather(message.getText(), items));
                     } catch (IOException e) {
@@ -72,7 +59,7 @@ public class Bot  extends TelegramLongPollingBot {
             }
         }
     }
-    }
+}
 
 
 
